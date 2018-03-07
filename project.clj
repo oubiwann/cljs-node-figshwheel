@@ -15,11 +15,11 @@
        "\u001B[35m]\u001B[33m λ\u001B[m=> "))
 
 (defproject cljs-node-figwheel "0.1.0-SNAPSHOT"
-  :description "FIXME: write this!"
-  :url "http://example.com/FIXME"
+  :description "Example project for using Node.js, Figwheel, and a combination of both"
+  :url "http://github.com/oubiwann/cljs-node-figwheel"
   :license {
-    :name "Eclipse Public License"
-    :url "http://www.eclipse.org/legal/epl-v10.html"}
+    :name "Apache License, Version 2.0"
+    :url "http://www.apache.org/licenses/LICENSE-2.0"}
   :min-lein-version "2.7.1"
   :exclusions [
     [org.clojure/clojure]]
