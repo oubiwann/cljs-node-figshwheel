@@ -1,3 +1,19 @@
+(defn get-banner
+  []
+  (try
+    (str
+      (slurp "dev-resources/text/banner.txt")
+      (slurp "dev-resources/text/loading.txt"))
+    ;; If another project can't find the banner, just skip it;
+    ;; this function is really only meant to be used by Dragon itself.
+    (catch Exception _ "")))
+
+(defn get-prompt
+  [ns]
+  (str "\u001B[35m[\u001B[34m"
+       ns
+       "\u001B[35m]\u001B[33m λ\u001B[m=> "))
+
 (defproject cljs-node-figwheel "0.1.0-SNAPSHOT"
   :description "FIXME: write this!"
   :url "http://example.com/FIXME"
@@ -15,6 +31,8 @@
     [lein-figwheel "0.5.15"]
     [lein-cljsbuild "1.1.7"]]
   :source-paths ["src"]
+  :clean-targets
+    ^{:protect false} ["resources/public/js" :target]
   :cljsbuild {
     :builds [
      {:id "dev"
@@ -23,7 +41,7 @@
       ;; will cause figwheel to inject the figwheel client
       ;; into your build
       :figwheel {
-        :on-jsload "cljs-node-figwheel.core/on-js-reload"
+        :on-jsload "cnf.core/on-js-reload"
         ;; :open-urls will pop open your application
         ;; in the default browser once Figwheel has
         ;; started and compiled your application.
@@ -32,8 +50,9 @@
       :compiler {
         :main cnf.core
         :asset-path "js/compiled/out"
-        :output-to "resources/public/js/compiled/cnf.js"
-        :output-dir "resources/public/js/compiled/out"
+        :output-to "target/node/cnf.js"
+        :output-dir "target/node/out"
+        :target :nodejs
         :source-map-timestamp true
         ;; To console.log CLJS data-structures make sure you enable devtools in Chrome
         ;; https://github.com/binaryage/cljs-devtools
@@ -84,7 +103,7 @@
     ;; :server-logfile "tmp/logs/figwheel-logfile.log"
 
     ;; to pipe all the output to the repl
-    ;; :server-logfile false
+    :server-logfile false
     }
 
   ;; Setting up nREPL for Figwheel and ClojureScript dev
@@ -97,11 +116,14 @@
         [figwheel-sidecar "0.5.15"]
         [com.cemerick/piggieback "0.2.2"]]
       ;; need to add dev source path here to get user.clj loaded
-      :source-paths ["src" "dev"]
+      :source-paths ["src" "dev-resources/src"]
       ;; for CIDER
       ;; :plugins [[cider/cider-nrepl "0.12.0"]]
       :repl-options {
-        :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
+        :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]
+        :init-ns cnf.dev
+        :prompt ~get-prompt
+        :init ~(println (get-banner))}
       ;; need to add the compliled assets to the :clean-targets
       :clean-targets
         ^{:protect false} ["resources/public/js/compiled"
@@ -131,4 +153,10 @@
     "lint" ["do"
       ["check"]
       ["kibit"]
-      ["eastwood"]]})
+      ["eastwood"]]
+    ;; Aliases for working with Node.js; for readline support, call the
+    ;; following as `rlwrap lein node-repl`
+    "node-repl"
+      ^{:doc "Start a Node.js-based Clojurescript REPL"}
+      ["trampoline" "run" "-m" "clojure.main"
+      "dev-resources/scripts/node-repl.clj"]})

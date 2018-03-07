@@ -1,5 +1,4 @@
-(ns cnf.core
-    (:require ))
+(ns cnf.core)
 
 (enable-console-print!)
 
